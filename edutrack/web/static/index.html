@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bahasa Indonesia — Login &amp; Portal Pembelajaran</title>
+  <meta name="theme-color" content="#0f172a" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" href="/static/icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/static/styles.css?v=20261120-v8.4.2" />
+</head>
+<body>
+  <div class="ambient-bg" aria-hidden="true">
+    <span class="orb orb-1"></span>
+    <span class="orb orb-2"></span>
+    <span class="orb orb-3"></span>
+  </div>
+
+  <div id="toast-container" aria-live="polite"></div>
+  <div id="idle-warning-banner" class="idle-warning-banner hidden" role="alert">
+    <span id="idle-warning-text">Sesi Anda akan berakhir otomatis dalam 5 menit karena tidak ada aktivitas.</span>
+    <button id="btn-extend-session" class="btn btn-primary btn-pill btn-sm" type="button">Lanjutkan Sesi</button>
+  </div>
+
+  <!-- LOGIN VIEW (Glassmorphism Minimalis: Hanya Nama Aplikasi + Tulisan Login) -->
+  <section id="view-login" class="auth-shell">
+    <button id="btn-theme-login" class="btn-icon auth-theme-toggle" title="Ganti Mode Terang/Gelap" aria-label="Ganti Tema" type="button">◐</button>
+    <div class="auth-card glass-panel">
+      <div class="auth-header">
+        <p class="auth-app-name">Bahasa Indonesia</p>
+        <h1 class="auth-title">Login</h1>
+      </div>
+
+      <div id="login-session-notice" class="info-banner hidden" style="margin-bottom:1rem;border-color:rgba(251,191,36,0.45);"></div>
+      <form id="form-login" class="stack">
+        <div class="field">
+          <label for="login-username">Username</label>
+          <div class="input-icon-wrap">
+            <span class="input-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </span>
+            <input id="login-username" type="text" required autocomplete="username" placeholder="Masukkan username" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="login-password">Kata Sandi</label>
+          <div class="input-icon-wrap">
+            <span class="input-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </span>
+            <input id="login-password" type="password" required autocomplete="current-password" placeholder="Masukkan kata sandi" />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-pill btn-full">Login</button>
+      </form>
+
+      <div class="auth-footer">
+        <p class="small muted" style="margin:0;text-align:center;">Lupa username atau kata sandi? Hubungi guru kelas untuk reset akun ke NIS &amp; sandi standar.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FIRST LOGIN PASSWORD CHANGE GATE -->
+  <section id="view-force-password" class="auth-shell hidden">
+    <div class="auth-card glass-panel">
+      <div class="auth-header">
+        <p class="auth-app-name">Bahasa Indonesia</p>
+        <h2 class="auth-title">Aktivasi Akun</h2>
+      </div>
+      <p class="muted small">Buat kata sandi pribadi sebelum masuk ke dashboard.</p>
+      <form id="form-force-password" class="stack mt-2">
+        <div class="field">
+          <label for="fp-current">Kata Sandi Sementara dari Guru</label>
+          <input id="fp-current" type="password" required />
+        </div>
+        <div class="field">
+          <label for="fp-new">Kata Sandi Baru (min. 8 karakter)</label>
+          <input id="fp-new" type="password" required minlength="8" />
+        </div>
+        <button type="submit" class="btn btn-primary btn-pill btn-full">Aktifkan Akun &amp; Lanjutkan</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- TEACHER WORKSPACE (Floating Morphing Glass Pill Sidebar) -->
+  <div id="view-teacher" class="app-layout hidden">
+    <div id="sidebar-backdrop" class="sidebar-backdrop" aria-hidden="true"></div>
+    <aside id="teacher-sidebar" class="sidebar-shell" aria-label="Menu Navigasi Guru">
+      <div class="sidebar glass-panel">
+        <div class="sidebar-head">
+          <div class="sidebar-brand-text">
+            <strong>Bahasa Indonesia</strong>
+            <span class="small muted">Portal Guru</span>
+          </div>
+          <button id="btn-collapse-sidebar" class="btn-icon sidebar-collapse-btn" type="button" title="Buka/Tutup Menu" aria-label="Buka atau tutup menu navigasi" aria-expanded="true">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+        </div>
+
+        <nav class="sidebar-nav" id="teacher-nav">
+          <button class="nav-item active" data-tab="t-dashboard" data-tooltip="Dashboard & Analisis" type="button">
+            <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5"/></svg></span>
+            <span class="nav-label">Dashboard &amp; Analisis</span>
+          </button>
+          <button class="nav-item" data-tab="t-classes" data-tooltip="Kelas" type="button">
+            <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
+            <span class="nav-label">Kelas</span>
+          </button>
+          <button class="nav-item" data-tab="t-students" data-tooltip="Peserta Didik" type="button">
+            <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+            <span class="nav-label">Peserta Didik &amp; Akun</span>
+          </button>
+          <button class="nav-item" data-tab="t-grades" data-tooltip="Penilaian & Nilai" type="button">
+            <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+            <span class="nav-label">Penilaian &amp; Buku Nilai</span>
+          </button>
+          <button class="nav-item" data-tab="t-attendance" data-tooltip="Kehadiran & Rekap" type="button">
+            <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+            <span class="nav-label">Kehadiran &amp; Rekap</span>
+          </button>
+          <button class="nav-item" data-tab="t-reports" data-tooltip="Laporan & Audit" type="button">
+            <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+            <span class="nav-label">Laporan, Koreksi &amp; Audit</span>
+          </button>
+          <button class="nav-item" data-tab="t-account" data-tooltip="Pengaturan Akun" type="button">
+            <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+            <span class="nav-label">Pengaturan Akun</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-foot">
+          <div class="sidebar-user-meta">
+            <div id="teacher-user-label" class="small"></div>
+</div>
+          <div class="sidebar-foot-actions mt-1">
+            <button id="btn-theme-teacher" class="btn btn-secondary btn-pill btn-sm" title="Mode Gelap/Terang" type="button">◐ <span class="nav-label">Tema</span></button>
+            <button id="btn-logout-teacher" class="btn btn-danger btn-pill btn-sm" title="Keluar" type="button">⎋ <span class="nav-label">Keluar</span></button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="workspace-frame glass-panel">
+        <header class="topbar">
+          <div class="topbar-left">
+            <button id="btn-toggle-sidebar" class="btn-icon menu-trigger-btn" type="button" title="Buka/Tutup Menu" aria-label="Buka atau tutup menu">
+              <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <div>
+              <h2 id="teacher-page-title">Dashboard Guru</h2>
+              </div>
+          </div>
+          <div class="topbar-filters">
+            <select id="filter-class" aria-label="Pilih Kelas"></select>
+          </div>
+        </header>
+
+        <!-- TAB: TEACHER DASHBOARD -->
+        <section id="tab-t-dashboard" class="tab-panel">
+          <div class="kpi-grid" id="t-kpi-grid"></div>
+          <div class="card mt-3">
+            <h3>Rata-Rata Antarkomponen Penilaian</h3>
+            <div id="chart-t-components" class="chart-box"></div>
+          </div>
+
+          <div class="two-col mt-3">
+            <div class="card">
+              <h3>Distribusi Nilai Akhir Kelas</h3>
+              <div class="student-panel-scroll">
+                <div id="chart-t-distribution" class="chart-box"></div>
+              </div>
+            </div>
+            <div class="card">
+              <h3>Proporsi Status Kehadiran</h3>
+              <div class="student-panel-scroll">
+                <div id="chart-t-attendance" class="chart-box"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card mt-3" id="teacher-compare-card">
+            <div class="card-head">
+              <div>
+                <h3>Analisis Tren Individual &amp; Perbandingan Peserta Didik</h3>
+                <p class="small muted hidden" id="t-compare-hint">Pilih salah satu kelas pada filter atas untuk membandingkan tren nilai peserta didik antarmateri.</p>
+              </div>
+              <div class="compare-controls">
+                <select id="select-compare-students" multiple size="1" aria-label="Pilih siswa dibandingkan"></select>
+                <button id="btn-compare-select-all" class="btn btn-secondary btn-pill btn-sm" type="button">Pilih Semua</button>
+                <button id="btn-compare-clear-all" class="btn btn-secondary btn-pill btn-sm" type="button">Hapus Semua</button>
+                <button id="btn-run-compare" class="btn btn-primary btn-pill btn-sm" type="button">Bandingkan</button>
+              </div>
+            </div>
+            <div class="compare-split-grid mt-2">
+              <div class="compare-pane">
+                <div class="compare-pane-head">
+                  <label class="small muted" for="compare-mat-left" id="t-compare-left-title">Semua Materi</label>
+                  <select id="compare-mat-left" aria-label="Pilih materi pembanding pertama"><option value="">Semua Materi</option></select>
+                </div>
+                <div id="chart-t-compare" class="chart-box"></div>
+              </div>
+              <div class="compare-pane">
+                <div class="compare-pane-head">
+                  <label class="small muted" for="compare-mat-right" id="t-compare-right-title">Semua Materi</label>
+                  <select id="compare-mat-right" aria-label="Pilih materi pembanding kedua"><option value="">Semua Materi</option></select>
+                </div>
+                <div id="chart-t-compare-right" class="chart-box"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card mt-3" id="ews-card">
+            <div class="card-head">
+              <div>
+                <h3>Peserta Didik Memerlukan Perhatian</h3>
+              </div>
+              <div class="row gap-sm toolbar-controls">
+                <label class="small muted" for="ews-alpa-threshold">Batas Alpa:</label>
+                <input id="ews-alpa-threshold" type="number" min="1" max="30" value="3" style="width:78px;min-width:78px;" />
+                <button id="btn-refresh-ews" class="btn btn-secondary btn-pill btn-sm" type="button">Perbarui EWS</button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr><th>Tingkat</th><th>NIS</th><th>Nama Peserta Didik</th><th>Kelas</th><th>Nilai / KKM</th><th>Kehadiran / Alpa</th><th>Indikator Pemicu</th><th>Aksi</th></tr>
+                </thead>
+                <tbody id="ews-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB: CLASSES (Manual tanpa Tahun Ajaran) -->
+        <section id="tab-t-classes" class="tab-panel hidden">
+          <div class="card">
+            <h3>Tambah Kelas Secara Manual</h3>
+            <form id="form-class" class="grid-form mt-2">
+              <input id="c-name" placeholder="Nama Kelas (mis. XI-IPA-1)" required />
+              <input id="c-level" placeholder="Tingkat / Mata Pelajaran (mis. SMA Kelas XI)" required />
+              <input id="c-kkm" type="number" step="0.5" min="0" max="100" value="75" placeholder="KKM (0-100)" />
+              <select id="c-mode" aria-label="Mode Perhitungan">
+                <option value="weighted">Perhitungan Berbobot</option>
+                <option value="unweighted">Rata-Rata Sederhana</option>
+              </select>
+              <input id="c-desc" placeholder="Keterangan tambahan (opsional)" class="span-2" />
+              <label class="checkbox-inline"><input id="c-dl" type="checkbox" checked /> Izinkan siswa unduh laporan</label>
+              <button type="submit" class="btn btn-primary btn-pill btn-sm">+ Tambah Kelas</button>
+            </form>
+          </div>
+
+          <div class="card mt-3">
+            <div class="card-head">
+              <h3>Daftar Kelas</h3>
+              <label class="checkbox-inline"><input id="chk-show-archived" type="checkbox" /> Tampilkan arsip</label>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr><th>Nama Kelas</th><th>Tingkat</th><th>Mode</th><th>KKM</th><th>Status</th><th>Aksi</th></tr>
+                </thead>
+                <tbody id="t-classes-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card mt-3" id="card-teacher-announcements">
+            <div class="card-head">
+              <div>
+                <h3>Papan Pengumuman Kelas</h3>
+              </div>
+            </div>
+            <form id="form-announcement" class="stack-sm mt-2">
+              <div class="row gap-sm">
+                <input id="ann-title" placeholder="Judul pengumuman (mis. Jadwal Ujian Tengah Semester)" required maxlength="150" />
+                <select id="ann-category" aria-label="Kategori Pengumuman" style="max-width:210px;">
+                  <option value="Jadwal Ujian">Jadwal Ujian</option>
+                  <option value="Perubahan Materi">Perubahan Materi</option>
+                  <option value="Tenggat Tugas">Tenggat Tugas</option>
+                  <option value="Umum">Umum</option>
+                </select>
+              </div>
+              <textarea id="ann-content" rows="2" placeholder="Tulis isi pengumuman untuk siswa pada kelas terpilih..." required maxlength="4000"></textarea>
+              <div class="row gap-sm" style="justify-content:space-between;align-items:center;">
+                <label class="checkbox-inline"><input id="ann-pinned" type="checkbox" /> Sematkan di paling atas</label>
+                <button type="submit" class="btn btn-primary btn-pill btn-sm">Terbitkan Pengumuman</button>
+              </div>
+            </form>
+            <div id="t-announcements-list" class="stack-sm mt-3"></div>
+          </div>
+        </section>
+
+        <!-- TAB: STUDENTS -->
+        <section id="tab-t-students" class="tab-panel hidden">
+          <div class="two-col">
+            <div class="card">
+              <h3>Tambah Peserta Didik &amp; Buat Akun</h3>
+              <form id="form-student" class="stack-sm mt-2">
+                <select id="s-class-id" required aria-label="Kelas Tujuan"></select>
+                <div class="row gap-sm">
+                  <input id="s-name" placeholder="Nama Lengkap" required />
+                  <input id="s-code" placeholder="Nomor Induk / NIS" required />
+                </div>
+                <div class="row gap-sm">
+                  <input id="s-username" placeholder="Username (kosong = otomatis NIS)" />
+                  <input id="s-password" placeholder="Sandi awal (kosong = default 12345678)" />
+                </div>
+                <input id="s-notes" placeholder="Catatan profil (opsional)" />
+                <button type="submit" class="btn btn-primary btn-pill btn-sm">Tambahkan Peserta Didik</button>
+              </form>
+              <div id="student-cred-banner" class="info-banner hidden mt-2"></div>
+            </div>
+
+            <div class="card">
+              <div class="card-head">
+                <h3>Impor Massal Peserta Didik (.xlsx)</h3>
+                <button id="btn-download-student-template" class="btn btn-secondary btn-pill btn-sm" type="button">Unduh Template Data Peserta Didik</button>
+              </div>
+              <p class="small muted">Gunakan template Excel resmi (<code>No.</code>, <code>NIS / Identitas</code>, <code>Nama Peserta Didik</code>, <code>Username</code>, <code>Password</code>). Password akan di-hash aman dan peserta didik wajib mengganti sandi saat login pertama.</p>
+              <form id="form-import-students" class="stack-sm mt-2">
+                <select id="import-class-id" required aria-label="Kelas Tujuan Impor"></select>
+                <input id="import-file" type="file" accept=".xlsx,.csv" required />
+                <div class="row gap-sm">
+                  <button type="submit" class="btn btn-primary btn-pill btn-sm">Pratinjau &amp; Validasi</button>
+                </div>
+              </form>
+              <div id="student-import-preview" class="import-preview-box hidden mt-2"></div>
+              <div id="import-result" class="info-banner hidden mt-2"></div>
+            </div>
+          </div>
+
+          <div class="card mt-3">
+            <div class="card-head">
+              <h3>Daftar Peserta Didik</h3>
+              <div class="row gap-sm toolbar-controls">
+                <input id="s-search" placeholder="Cari nama / NIS..." />
+                <select id="s-filter-status" aria-label="Filter Status Akun">
+                  <option value="">Semua Status</option>
+                  <option value="active">Aktif</option>
+                  <option value="pending_activation">Belum Aktivasi</option>
+                  <option value="deactivated">Dinonaktifkan</option>
+                </select>
+                <button id="btn-search-students" class="btn btn-secondary btn-pill btn-sm" type="button">Filter</button>
+                <button id="btn-bulk-delete-selected" class="btn btn-secondary btn-pill btn-sm" type="button">Hapus Terpilih</button>
+                <button id="btn-bulk-delete-all" class="btn btn-danger btn-pill btn-sm" type="button">Hapus Semua</button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th class="col-check"><input type="checkbox" id="chk-select-all-students" title="Pilih semua peserta didik" aria-label="Pilih semua peserta didik" /></th>
+                    <th>NIS</th>
+                    <th>Nama Lengkap</th>
+                    <th>Username</th>
+                    <th>Status Akun</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="t-students-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB: GRADES -->
+        <section id="tab-t-grades" class="tab-panel hidden">
+          <div class="two-col">
+            <div class="card">
+              <h3>Materi Pembelajaran (Bab / Topik)</h3>
+              <form id="form-material" class="stack-sm mt-2">
+                <input id="m-title" placeholder="Judul Materi (mis. Bab 1: Teks Deskripsi)" required />
+                <div class="row gap-sm">
+                  <input id="m-order" type="number" min="1" placeholder="Urutan (opsional)" style="max-width:160px;" />
+                  <input id="m-desc" placeholder="Deskripsi singkat materi (opsional)" />
+                </div>
+                <button type="submit" class="btn btn-primary btn-pill btn-sm">+ Tambah Materi</button>
+              </form>
+              <div id="materials-list" class="stack-sm mt-2"></div>
+            </div>
+
+            <div class="card">
+              <h3>Buat Komponen Penilaian Baru</h3>
+            <form id="form-assessment" class="grid-form mt-2">
+              <select id="a-material-id" aria-label="Pilih Materi Pembelajaran"><option value="">Tanpa Materi (Umum)</option></select>
+              <input id="a-title" placeholder="Nama Penilaian (mis. Kuis 2)" required />
+              <select id="a-category">
+                <option>Tugas</option><option>Kuis</option><option>Latihan</option>
+                <option>Proyek</option><option>Praktik</option>
+                <option>Asesmen Formatif</option><option>Asesmen Sumatif</option><option>Ujian</option>
+              </select>
+              <select id="a-is-graded" aria-label="Jenis Penilaian">
+                <option value="1">Dinilai (Angka)</option>
+                <option value="0">Tidak Dinilai (Checklist Pengumpulan)</option>
+              </select>
+              <input id="a-date" type="date" required />
+              <input id="a-max" type="number" value="100" min="1" step="1" placeholder="Skor Maks" />
+              <input id="a-weight" type="number" value="10" min="0" step="1" placeholder="Bobot" />
+              <select id="a-status">
+                <option value="draft">Draft (Hanya Guru)</option>
+                <option value="published">Dipublikasikan (Terlihat Siswa)</option>
+              </select>
+              <input id="a-desc" placeholder="Deskripsi singkat penilaian" class="span-2" />
+              <button type="submit" class="btn btn-primary btn-pill btn-sm">Simpan Komponen</button>
+            </form>
+          </div>
+          </div>
+
+          <div class="card mt-3">
+            <div class="card-head">
+              <h3>Buku Nilai Kelas (Kosong = Belum Dinilai, Berbeda dari 0)</h3>
+              <div class="row gap-sm">
+                <select id="filter-grade-material" aria-label="Filter Materi Buku Nilai"><option value="">Semua Materi</option></select>
+                <select id="select-grade-assessment"></select>
+                <button id="btn-edit-assessment" class="btn btn-secondary btn-pill btn-sm" type="button">Ubah</button>
+                <button id="btn-reset-grades" class="btn btn-secondary btn-pill btn-sm" type="button">Reset Nilai</button>
+                <button id="btn-delete-assessment" class="btn btn-danger btn-pill btn-sm" type="button">Hapus</button>
+                <button id="btn-toggle-publish" class="btn btn-secondary btn-pill btn-sm" type="button">Publikasikan / Tarik</button>
+                <button id="btn-save-grades" class="btn btn-primary btn-pill btn-sm" type="button">Simpan Nilai</button>
+              </div>
+            </div>
+            <div class="table-wrap" id="gradebook-container"></div>
+          </div>
+
+          <div class="card mt-3">
+            <div class="card-head">
+              <div>
+                <h3>Unggah Nilai Massal (Template Excel .xlsx)</h3>
+                <p class="small muted" id="grade-import-context">Pilih kelas dan komponen penilaian di atas, lalu unduh template sesuai konteks penilaian.</p>
+              </div>
+              <button id="btn-download-grade-template" class="btn btn-secondary btn-pill btn-sm" type="button">Unduh Template Nilai</button>
+            </div>
+            <form id="form-import-grades" class="stack-sm mt-2">
+              <div class="row gap-sm">
+                <input id="grade-import-file" type="file" accept=".xlsx" required />
+                <button type="submit" class="btn btn-primary btn-pill btn-sm">Pratinjau &amp; Validasi Nilai</button>
+              </div>
+            </form>
+            <div id="grade-import-preview" class="import-preview-box hidden mt-2"></div>
+            <div id="grade-import-result" class="info-banner hidden mt-2"></div>
+          </div>
+
+          <div class="card mt-3">
+            <h3>Riwayat Perubahan Nilai</h3>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>Waktu</th><th>Penilaian</th><th>Peserta Didik</th><th>Lama</th><th>Baru</th><th>Diubah Oleh</th><th>Alasan</th></tr></thead>
+                <tbody id="t-grade-history-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB: ATTENDANCE (Smooth Interactive Attendance) -->
+        <section id="tab-t-attendance" class="tab-panel hidden">
+          <div id="offline-sync-banner" class="info-banner row mb-2" style="justify-content:space-between;align-items:center;">
+            <span id="offline-sync-status" class="small">Status jaringan: Online • Tidak ada antrean kehadiran offline.</span>
+            <button id="btn-sync-offline-att" class="btn btn-secondary btn-pill btn-sm hidden" type="button">Sinkronkan Sekarang</button>
+          </div>
+          <div class="two-col">
+            <div class="card">
+              <h3>Buat Sesi Pertemuan Baru</h3>
+              <form id="form-att-session" class="stack-sm mt-2">
+                <select id="att-class-id" aria-label="Pilih Kelas Kehadiran"></select>
+                <div class="row gap-sm">
+                  <input id="att-date" type="date" required />
+                  <input id="att-meeting" type="number" min="1" value="1" placeholder="Pertemuan #" required />
+                </div>
+                <input id="att-topic" placeholder="Materi / topik pertemuan (opsional)" />
+                <label class="checkbox-inline"><input id="att-all-present" type="checkbox" checked /> Tandai seluruh peserta didik hadir otomatis</label>
+                <button type="submit" class="btn btn-primary btn-pill btn-sm">+ Buat Sesi Kehadiran</button>
+              </form>
+            </div>
+
+            <div class="card">
+              <div class="card-head">
+                <h3>Daftar Sesi Pertemuan</h3>
+                <div class="row gap-sm">
+                  <span class="small muted" id="att-session-count">0 sesi</span>
+                  <button id="btn-delete-all-sessions" class="btn btn-danger btn-pill btn-sm" type="button" disabled>Hapus Semua</button>
+                </div>
+              </div>
+              <div id="att-sessions-list" class="stack-sm mt-2 att-sessions-scroll"></div>
+            </div>
+          </div>
+
+          <div class="card mt-3">
+            <div class="card-head">
+              <div>
+                <h3 id="att-editor-title">Formulir Kehadiran Pertemuan</h3>
+                <div id="att-live-summary" class="row gap-sm mt-1"></div>
+              </div>
+              <div class="row gap-sm">
+                <button id="btn-edit-session" class="btn btn-secondary btn-pill btn-sm" type="button">Ubah Sesi</button>
+                <button id="btn-reset-attendance" class="btn btn-secondary btn-pill btn-sm" type="button">Reset</button>
+                <button id="btn-delete-session" class="btn btn-danger btn-pill btn-sm" type="button">Hapus Sesi</button>
+                <button id="btn-mark-all-present" class="btn btn-secondary btn-pill btn-sm" type="button">Semua Hadir</button>
+                <button id="btn-save-attendance" class="btn btn-primary btn-pill btn-sm" type="button">Simpan Kehadiran</button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>NIS</th><th>Nama Peserta Didik</th><th>Status Kehadiran</th><th>Catatan</th></tr></thead>
+                <tbody id="att-records-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card mt-3">
+            <div class="card-head">
+              <h3>Rekapitulasi Kehadiran Kelas</h3>
+              <select id="att-recap-granularity">
+                <option value="monthly">Bulanan</option>
+                <option value="weekly">Mingguan</option>
+                <option value="daily">Harian</option>
+                <option value="semester">Semester</option>
+                <option value="yearly">Tahunan</option>
+              </select>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>NIS</th><th>Nama</th><th>Pertemuan</th><th>Hadir</th><th>Sakit</th><th>Izin</th><th>Alpa</th><th>Kehadiran</th></tr></thead>
+                <tbody id="att-recap-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB: REPORTS, CORRECTIONS, AUDIT & BACKUP -->
+        <section id="tab-t-reports" class="tab-panel hidden">
+          <div class="two-col">
+            <div class="card">
+              <h3>Unduh Laporan Akademik Kelas</h3>
+              <p class="small muted">Ekspor data kelas terpilih dalam format Excel (.xlsx), CSV, atau PDF.</p>
+              <div class="stack-sm mt-2">
+                <div class="row gap-sm">
+                  <button class="btn btn-primary btn-pill btn-sm" data-export="class-grades:xlsx">Nilai Kelas (.xlsx)</button>
+                  <button class="btn btn-secondary btn-pill btn-sm" data-export="class-grades:csv">Nilai Kelas (.csv)</button>
+                  <button class="btn btn-secondary btn-pill btn-sm" data-export="class-grades:pdf">Nilai Kelas (.pdf)</button>
+                </div>
+                <div class="row gap-sm">
+                  <button class="btn btn-primary btn-pill btn-sm" data-export="class-att:xlsx">Rekap Kehadiran (.xlsx)</button>
+                  <button class="btn btn-secondary btn-pill btn-sm" data-export="class-att:csv">Rekap Kehadiran (.csv)</button>
+                  <button class="btn btn-secondary btn-pill btn-sm" data-export="class-att:pdf">Rekap Kehadiran (.pdf)</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3>Pencadangan &amp; Pemulihan Basis Data</h3>
+              <div class="row gap-sm mt-2">
+                <input id="backup-label" placeholder="Label cadangan (mis. pra-rapor)" />
+                <button id="btn-create-backup" class="btn btn-primary btn-pill btn-sm" type="button">Buat Cadangan</button>
+              </div>
+              <div id="backup-list" class="stack-sm mt-2"></div>
+            </div>
+          </div>
+
+          <div class="card mt-3">
+            <h3>Permintaan Koreksi dari Peserta Didik</h3>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>Peserta Didik</th><th>Kelas</th><th>Jenis</th><th>Pesan</th><th>Status</th><th>Tanggapan Guru</th><th>Aksi</th></tr></thead>
+                <tbody id="t-corrections-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB: TEACHER ACCOUNT -->
+        <section id="tab-t-account" class="tab-panel hidden">
+          <div class="two-col">
+            <div class="card">
+              <h3>Pengaturan Profil Guru</h3>
+              <form id="form-t-profile" class="stack-sm mt-2">
+                <label class="small muted" for="tp-username">Username Login</label>
+                <input id="tp-username" placeholder="Username Login (min. 3 karakter, tanpa spasi)" required />
+                <label class="small muted" for="tp-name">Nama Lengkap</label>
+                <input id="tp-name" placeholder="Nama Lengkap" required />
+                <label class="small muted" for="tp-email">Alamat Email</label>
+                <input id="tp-email" type="email" placeholder="Alamat Email" />
+                <button type="submit" class="btn btn-primary btn-pill btn-sm">Simpan Perubahan Akun</button>
+              </form>
+            </div>
+            <div class="card">
+              <h3>Ganti Kata Sandi</h3>
+              <form id="form-t-password" class="stack-sm mt-2">
+                <input id="tp-old-pw" type="password" placeholder="Kata sandi saat ini" required />
+                <input id="tp-new-pw" type="password" minlength="8" placeholder="Kata sandi baru (min. 8 karakter)" required />
+                <button type="submit" class="btn btn-primary btn-pill btn-sm">Perbarui Kata Sandi</button>
+              </form>
+            </div>
+          </div>
+
+          <div class="card mt-3">
+            <div class="card-head">
+              <div>
+                <h3>Sesi Aktif &amp; Keamanan Perangkat</h3>
+                <p class="small muted">Kelola perangkat yang sedang login ke akun Anda atau keluar dari seluruh perangkat sekaligus.</p>
+              </div>
+              <div class="row gap-sm">
+                <button id="btn-refresh-t-sessions" class="btn btn-secondary btn-pill btn-sm" type="button">Muat Ulang</button>
+                <button id="btn-logout-all-teacher" class="btn btn-danger btn-pill btn-sm" type="button">Keluar dari Semua Perangkat</button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>Perangkat</th><th>Alamat IP</th><th>Login</th><th>Aktivitas Terakhir</th><th>Status</th><th>Aksi</th></tr></thead>
+                <tbody id="t-sessions-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- STUDENT PORTAL (Glassmorphism Floating Top Pill Bar) -->
+  <!-- STUDENT WORKSPACE (Floating Morphing Glass Pill Sidebar seperti Dashboard Guru) -->
+  <div id="view-student" class="app-layout hidden">
+    <div id="student-sidebar-backdrop" class="sidebar-backdrop" aria-hidden="true"></div>
+    <aside id="student-sidebar" class="sidebar-shell" aria-label="Menu Navigasi Siswa">
+      <div class="sidebar glass-panel">
+        <div class="sidebar-head">
+          <div class="sidebar-brand-text">
+            <strong>Bahasa Indonesia</strong>
+            <span class="small muted">Portal Siswa</span>
+          </div>
+          <button id="btn-collapse-student-sidebar" class="btn-icon sidebar-collapse-btn" type="button" title="Buka/Tutup Menu" aria-label="Buka atau tutup menu navigasi siswa" aria-expanded="true">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+        </div>
+
+        <nav class="sidebar-nav" id="student-nav" aria-label="Menu Navigasi Siswa">
+          <button class="nav-item active" data-stab="s-overview" data-tooltip="Ringkasan" type="button">
+            <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5"/></svg></span>
+            <span class="nav-label">Ringkasan</span>
+          </button>
+          <button class="nav-item" data-stab="s-grades" data-tooltip="Daftar Nilai" type="button">
+            <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+            <span class="nav-label">Daftar Nilai</span>
+          </button>
+          <button class="nav-item" data-stab="s-attendance" data-tooltip="Kehadiran" type="button">
+            <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+            <span class="nav-label">Kehadiran</span>
+          </button>
+          <button class="nav-item" data-stab="s-corrections" data-tooltip="Ajukan Koreksi" type="button">
+            <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+            <span class="nav-label">Ajukan Koreksi</span>
+          </button>
+          <button class="nav-item" data-stab="s-account" data-tooltip="Akun" type="button">
+            <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+            <span class="nav-label">Akun</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-foot">
+          <div class="sidebar-user-meta">
+            <div id="student-user-label" class="small muted"></div>
+          </div>
+          <div class="sidebar-foot-actions mt-2">
+            <button id="btn-theme-student" class="btn btn-secondary btn-pill btn-sm" title="Ganti Tema" type="button"><span aria-hidden="true">◐</span><span class="nav-label">Tema</span></button>
+            <button id="btn-logout-student" class="btn btn-danger btn-pill btn-sm" title="Keluar" type="button"><span aria-hidden="true">↪</span><span class="nav-label">Keluar</span></button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="workspace-frame glass-panel">
+        <header class="topbar">
+          <div class="topbar-left">
+            <button id="btn-toggle-student-menu" class="btn-icon" type="button" title="Buka/Tutup Menu" aria-label="Buka atau tutup menu siswa" aria-expanded="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <div class="student-topbar-identity">
+              <h2 id="st-header-name">Bahasa Indonesia</h2>
+              <div class="small muted" id="st-header-class"></div>
+            </div>
+          </div>
+        </header>
+
+        <!-- STUDENT OVERVIEW -->
+        <section id="stab-s-overview" class="stab-panel">
+          <div class="student-hero glass-panel">
+            <div class="student-greeting-block">
+              <h2 id="st-welcome">Halo, Selamat Datang!</h2>
+              <div id="st-realtime-clock" class="realtime-clock-pill" aria-live="off">
+                <span class="clock-dot" aria-hidden="true"></span>
+                <span id="st-clock-text">Memuat waktu...</span>
+              </div>
+            </div>
+            <div class="row gap-sm" style="flex-wrap:wrap;">
+              <select id="s-filter-material" aria-label="Filter Materi Pembelajaran" style="min-width:190px;max-width:250px;border-radius:999px;"><option value="">Semua Materi</option></select>
+              <div id="st-download-box" class="row gap-sm">
+                <button class="btn btn-primary btn-pill btn-sm" data-sexport="pdf">Unduh Laporan PDF</button>
+                <button class="btn btn-secondary btn-pill btn-sm" data-sexport="xlsx">Excel</button>
+                <button class="btn btn-secondary btn-pill btn-sm" data-sexport="csv">CSV</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="kpi-grid mt-3" id="s-kpi-grid"></div>
+
+          <div class="chart-grid mt-3">
+            <div class="card">
+              <h3>Perkembangan Nilai Pribadi</h3>
+              <div class="student-panel-scroll">
+                <div id="chart-s-trend" class="chart-box"></div>
+              </div>
+            </div>
+            <div class="card">
+              <h3>Capaian per Kategori Penilaian</h3>
+              <div class="student-panel-scroll">
+                <div id="chart-s-category" class="chart-box"></div>
+              </div>
+            </div>
+            <div class="card">
+              <h3>Ringkasan Kehadiran Pribadi</h3>
+              <div class="student-panel-scroll">
+                <div id="chart-s-attendance" class="chart-box"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card mt-3" id="student-compare-card">
+            <div class="card-head">
+              <div>
+                <h3>Perbandingan Tren Nilai Antarmateri</h3>
+              </div>
+            </div>
+            <div class="compare-split-grid mt-2">
+              <div class="compare-pane">
+                <div class="compare-pane-head">
+                  <label class="small muted" for="s-compare-mat-left">Materi Kiri</label>
+                  <select id="s-compare-mat-left" aria-label="Pilih materi pembanding kiri"><option value="">Semua Materi</option></select>
+                </div>
+                <div id="chart-s-compare-left" class="chart-box"></div>
+              </div>
+              <div class="compare-pane">
+                <div class="compare-pane-head">
+                  <label class="small muted" for="s-compare-mat-right">Materi Kanan</label>
+                  <select id="s-compare-mat-right" aria-label="Pilih materi pembanding kanan"><option value="">Semua Materi</option></select>
+                </div>
+                <div id="chart-s-compare-right" class="chart-box"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card mt-3">
+            <div class="card-head">
+              <div>
+                <h3>Papan Pengumuman Kelas</h3>
+                <p class="small muted">Informasi resmi dari guru mengenai jadwal ujian, perubahan materi, dan tenggat tugas.</p>
+              </div>
+            </div>
+            <div id="s-announcements-list" class="stack-sm"></div>
+          </div>
+        </section>
+
+        <!-- STUDENT GRADES -->
+        <section id="stab-s-grades" class="stab-panel hidden">
+          <div class="card">
+            <h3>Penilaian</h3>
+            <div class="table-wrap mt-2">
+              <table class="data-table">
+                <thead><tr><th>Tanggal</th><th>Materi</th><th>Nama Penilaian</th><th>Kategori</th><th>Nilai</th><th>Skala 100</th><th>Umpan Balik Guru</th></tr></thead>
+                <tbody id="s-grades-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card mt-3">
+            <h3>Catatan</h3>
+            <div class="table-wrap mt-2">
+              <table class="data-table">
+                <thead><tr><th>Tanggal</th><th>Materi</th><th>Nama Tugas</th><th>Kategori</th><th>Status Pengumpulan</th><th>Catatan Guru</th></tr></thead>
+                <tbody id="s-checklist-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- STUDENT ATTENDANCE -->
+        <section id="stab-s-attendance" class="stab-panel hidden">
+          <div class="card">
+            <div class="card-head">
+              <h3>Riwayat Kehadiran Pribadi</h3>
+              <div class="row gap-sm">
+                <input id="s-att-month" type="month" aria-label="Filter Bulan" />
+                <button id="btn-s-att-filter" class="btn btn-secondary btn-pill btn-sm" type="button">Filter Bulan</button>
+                <button id="btn-s-att-reset" class="btn btn-secondary btn-pill btn-sm" type="button">Semua</button>
+              </div>
+            </div>
+            <div class="table-wrap mt-2">
+              <table class="data-table">
+                <thead><tr><th>Tanggal</th><th>Pertemuan</th><th>Topik</th><th>Kelas</th><th>Status</th><th>Catatan</th></tr></thead>
+                <tbody id="s-att-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- STUDENT CORRECTIONS -->
+        <section id="stab-s-corrections" class="stab-panel hidden">
+          <div class="two-col">
+            <div class="card">
+              <h3>Ajukan Permintaan Koreksi ke Guru</h3>
+              <p class="small muted">Permintaan ini hanya diteruskan sebagai informasi kepada guru dan tidak langsung mengubah data akademik.</p>
+              <form id="form-s-correction" class="stack-sm mt-2">
+                <select id="sc-type">
+                  <option value="grade">Ketidaksesuaian Nilai</option>
+                  <option value="attendance">Ketidaksesuaian Kehadiran</option>
+                </select>
+                <select id="sc-target"></select>
+                <textarea id="sc-msg" rows="3" required minlength="5" placeholder="Jelaskan ketidaksesuaian yang Anda temukan..."></textarea>
+                <button type="submit" class="btn btn-primary btn-pill btn-sm">Kirim Laporan Koreksi</button>
+              </form>
+            </div>
+            <div class="card">
+              <h3>Riwayat Permintaan Koreksi Saya</h3>
+              <div class="table-wrap mt-2">
+                <table class="data-table">
+                  <thead><tr><th>Jenis</th><th>Pesan</th><th>Status</th><th>Tanggapan Guru</th><th>Aksi</th></tr></thead>
+                  <tbody id="s-corrections-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- STUDENT ACCOUNT -->
+        <section id="stab-s-account" class="stab-panel hidden">
+          <div class="two-col">
+            <div class="card">
+              <h3>Ubah Username Login</h3>
+              <p class="small muted">Username bawaan adalah NIS Anda. Anda dapat menggantinya di sini (min. 3 karakter tanpa spasi).</p>
+              <form id="form-s-username" class="stack-sm mt-2">
+                <input id="su-new-username" type="text" minlength="3" placeholder="Username baru (tanpa spasi)" required />
+                <button type="submit" class="btn btn-primary btn-pill btn-sm">Simpan Username</button>
+              </form>
+            </div>
+            <div class="card">
+              <h3>Ganti Kata Sandi Akun</h3>
+            <form id="form-s-password" class="stack-sm mt-2">
+              <input id="sp-old-pw" type="password" placeholder="Kata sandi saat ini" required />
+              <input id="sp-new-pw" type="password" minlength="8" placeholder="Kata sandi baru (min. 8 karakter)" required />
+              <button type="submit" class="btn btn-primary btn-pill btn-sm">Simpan Kata Sandi Baru</button>
+            </form>
+            </div>
+          </div>
+
+          <div class="card mt-3">
+            <div class="card-head">
+              <div>
+                <h3>Sesi Aktif &amp; Keamanan Perangkat</h3>
+                <p class="small muted">Lihat perangkat yang sedang masuk ke akun Anda atau keluar dari seluruh perangkat.</p>
+              </div>
+              <div class="row gap-sm">
+                <button id="btn-refresh-s-sessions" class="btn btn-secondary btn-pill btn-sm" type="button">Muat Ulang</button>
+                <button id="btn-logout-all-student" class="btn btn-danger btn-pill btn-sm" type="button">Keluar dari Semua Perangkat</button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>Perangkat</th><th>Alamat IP</th><th>Login</th><th>Aktivitas Terakhir</th><th>Status</th><th>Aksi</th></tr></thead>
+                <tbody id="s-sessions-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="/static/app.js?v=20261120-v8.4.2"></script>
+</body>
+</html>

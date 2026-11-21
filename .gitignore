@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+*.db
+edutrack_backups/
+.vercel/
+.DS_Store
+.env.local
+.env.*.local
